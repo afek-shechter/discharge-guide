@@ -839,6 +839,7 @@
       });
       if(showChapters){
         requestAnimationFrame(updateScrollHint);
+        if(!chaptersPlaceholder.hidden){ showChapter('ch1'); }
       }
     }
     viewTabs.forEach(function(t){
