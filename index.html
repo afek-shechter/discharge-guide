@@ -267,7 +267,8 @@
     box-shadow:0 0 0 5px color-mix(in srgb, var(--warn) 22%, transparent);
   }
   .stop-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
-  .stop-head h3{font-size:19px;}
+  .stop-head h3{font-size:19px;transition:opacity .2s;}
+  .stop-head.all-done h3{text-decoration:line-through;opacity:.5;}
   .stop-tag{
     font-size:11.5px;color:var(--warn);
     background:var(--warn-bg);
@@ -952,7 +953,6 @@
         e.preventDefault();
         setView('chapters');
         showChapter(link.dataset.target);
-        window.scrollTo({top:0, behavior:'auto'});
       });
     });
 
@@ -960,14 +960,23 @@
     var CHECK_KEY = 'mishtachrerim-checklist';
     var savedChecks = {};
     try { savedChecks = JSON.parse(localStorage.getItem(CHECK_KEY) || '{}'); } catch(e){ savedChecks = {}; }
+    var stops = Array.prototype.slice.call(document.querySelectorAll('.stop'));
+    function updateStopHead(stop){
+      var head = stop.querySelector('.stop-head');
+      var inputs = stop.querySelectorAll('.check-input');
+      var allDone = inputs.length > 0 && Array.prototype.every.call(inputs, function(i){ return i.checked; });
+      if(head) head.classList.toggle('all-done', allDone);
+    }
     document.querySelectorAll('.check-input').forEach(function(input){
       var id = input.dataset.checkId;
       if(savedChecks[id]) input.checked = true;
       input.addEventListener('change', function(){
         if(input.checked){ savedChecks[id] = true; } else { delete savedChecks[id]; }
         try { localStorage.setItem(CHECK_KEY, JSON.stringify(savedChecks)); } catch(e){}
+        updateStopHead(input.closest('.stop'));
       });
     });
+    stops.forEach(updateStopHead);
 
     var feedbackFab = document.getElementById('feedbackFab');
     var feedbackOverlay = document.getElementById('feedbackOverlay');
