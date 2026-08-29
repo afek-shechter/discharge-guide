@@ -990,7 +990,7 @@
       if(e.key === 'Escape' && !feedbackOverlay.hidden){ closeFeedback(); }
     });
     feedbackSend.addEventListener('click', function(){
-      var subject = encodeURIComponent('הצעה לשיפור/לעדכון');
+      var subject = encodeURIComponent('משתחררים עם אפק - הצעה לשיפור/עדכון');
       var body = encodeURIComponent(feedbackText.value || '');
       window.location.href = 'mailto:tpe707@gmail.com?subject=' + subject + '&body=' + body;
     });
