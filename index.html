@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>משתחררים עם אפק</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;600;700&family=Heebo:wght@300;400;500;600;700&display=swap">
+<style>
+  :root{
+    --bg:#F6F4EE;
+    --surface:#FFFFFF;
+    --surface-2:#EFEBE1;
+    --ink:#152238;
+    --ink-soft:#4E5B71;
+    --ink-faint:#8592A6;
+    --accent:#A9782F;
+    --accent-ink:#2A1D08;
+    --accent-2:#2B5D7C;
+    --line:#DCD5C4;
+    --warn:#9C4A2E;
+    --warn-bg:#F4E7DE;
+    --shadow:0 1px 2px rgba(21,34,56,.06), 0 8px 24px rgba(21,34,56,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0D1826;
+      --surface:#132234;
+      --surface-2:#182A3E;
+      --ink:#EEF1F5;
+      --ink-soft:#AAB8CA;
+      --ink-faint:#748199;
+      --accent:#E3AA51;
+      --accent-ink:#2A1D08;
+      --accent-2:#7FB1D6;
+      --line:#25384F;
+      --warn:#E08A63;
+      --warn-bg:#2A1F1A;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 32px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0D1826;
+    --surface:#132234;
+    --surface-2:#182A3E;
+    --ink:#EEF1F5;
+    --ink-soft:#AAB8CA;
+    --ink-faint:#748199;
+    --accent:#E3AA51;
+    --accent-ink:#2A1D08;
+    --accent-2:#7FB1D6;
+    --line:#25384F;
+    --warn:#E08A63;
+    --warn-bg:#2A1F1A;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 32px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box;}
+  html{background:var(--bg);}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    direction:rtl;
+    font-family:"Heebo","Segoe UI","Arial Hebrew",sans-serif;
+    font-size:16px;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  .page{max-width:920px;margin:0 auto;padding:0 20px 96px;}
+  h1,h2,h3{
+    font-family:"Frank Ruhl Libre","David Libre","Times New Roman",serif;
+    font-weight:700;
+    text-wrap:balance;
+    color:var(--ink);
+    margin:0;
+  }
+  a{color:var(--accent-2);}
+  a:focus-visible, button:focus-visible, .navlink:focus-visible{
+    outline:2px solid var(--accent-2);
+    outline-offset:3px;
+    border-radius:4px;
+  }
+  ::selection{background:var(--accent);color:var(--accent-ink);}
+
+  /* progress bar */
+  .progress{position:fixed;inset-inline:0;top:0;height:3px;background:transparent;z-index:60;}
+  .progress > i{display:block;height:100%;width:0%;background:var(--accent);transition:width .08s linear;}
+
+  /* header */
+  header.hero{padding:64px 0 28px;}
+  .kicker{
+    display:flex;align-items:center;gap:10px;
+    color:var(--ink-faint);font-size:13px;letter-spacing:.04em;
+    margin-bottom:18px;
+  }
+  .kicker svg{flex:none;}
+  h1.title{font-size:clamp(32px,5vw,46px);line-height:1.15;text-align:center;}
+  p.tagline{
+    margin:0 0 16px;
+    padding-bottom:16px;
+    border-bottom:1px solid var(--line);
+    color:var(--ink);
+    font-weight:500;
+    font-size:17px;
+    max-width:none;
+  }
+
+  .intro-card{
+    margin-top:32px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    padding:28px 30px;
+    position:relative;
+  }
+  .intro-card p{
+    margin:0;
+    font-size:17px;
+    color:var(--ink);
+    max-width:none;
+  }
+  .intro-card .signature-mini{
+    margin-top:16px;
+    font-size:14px;
+    color:var(--ink-faint);
+  }
+
+  /* view switch */
+  .view-switch-bar{
+    position:sticky;top:0;z-index:52;
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .view-switch-bar{
+    max-width:920px;margin:0 auto;padding:10px 20px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+  }
+  .view-switch{
+    display:flex;gap:4px;
+    background:var(--surface-2);
+    border-radius:999px;
+    padding:3px;
+  }
+  .view-tab{
+    border:none;background:transparent;
+    font-family:"Heebo",sans-serif;
+    font-size:14px;color:var(--ink-soft);
+    padding:8px 18px;border-radius:999px;
+    cursor:pointer;
+  }
+  .view-tab.active{background:var(--surface);color:var(--ink);box-shadow:var(--shadow);font-weight:600;}
+  .view-tab[data-view="timeline"]{color:var(--accent-2);}
+  .view-tab[data-view="timeline"].active{
+    background:color-mix(in srgb, var(--accent-2) 16%, var(--surface));
+    color:var(--accent-2);
+  }
+
+  /* nav */
+  nav.toc{
+    position:sticky;top:54px;z-index:50;
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .toc-bar{
+    max-width:920px;margin:0 auto;padding:0 20px;
+    display:flex;align-items:center;gap:10px;
+    position:relative;
+  }
+  .toc-inner{
+    display:flex;gap:6px;overflow-x:auto;
+    flex:1;min-width:0;
+    scrollbar-width:none;
+    -webkit-mask-image:linear-gradient(to right, transparent 0, black 28px);
+    mask-image:linear-gradient(to right, transparent 0, black 28px);
+  }
+  .toc-inner::-webkit-scrollbar{display:none;}
+  .scroll-hint{
+    flex:none;
+    display:flex;align-items:center;justify-content:center;
+    width:20px;height:20px;
+    color:var(--accent-2);
+    pointer-events:none;
+    animation:scrollHintNudge 1.6s ease-in-out infinite;
+  }
+  .scroll-hint svg{width:14px;height:14px;}
+  @keyframes scrollHintNudge{
+    0%, 100%{transform:translateX(0);opacity:.55;}
+    50%{transform:translateX(-4px);opacity:1;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .scroll-hint{animation:none;}
+  }
+  .theme-toggle{
+    flex:none;
+    display:flex;align-items:center;justify-content:center;
+    width:34px;height:34px;
+    margin-inline-start:6px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    background:var(--surface);
+    color:var(--ink-soft);
+    cursor:pointer;
+    padding:0;
+  }
+  .theme-toggle:hover{color:var(--ink);}
+  .theme-toggle svg{width:16px;height:16px;}
+  .theme-toggle .sun{display:none;}
+  .theme-toggle.is-dark .sun{display:block;}
+  .theme-toggle.is-dark .moon{display:none;}
+  .navlink{
+    flex:none;
+    display:inline-flex;align-items:center;gap:6px;
+    padding:12px 14px;
+    font-size:13.5px;
+    color:var(--ink-soft);
+    text-decoration:none;
+    white-space:nowrap;
+    border-bottom:2px solid transparent;
+    transition:color .15s, border-color .15s;
+  }
+  .navlink:hover{color:var(--ink);}
+  .navlink.active{color:var(--accent);border-bottom-color:var(--accent);}
+  .navlink b{font-weight:600;color:inherit;}
+
+  /* timeline */
+  section#timeline{padding:28px 0 8px;}
+  .section-eyebrow{
+    display:inline-block;
+    font-size:12.5px;
+    letter-spacing:.06em;
+    color:var(--accent-2);
+    background:color-mix(in srgb, var(--accent-2) 12%, transparent);
+    padding:4px 10px;
+    border-radius:999px;
+    margin-bottom:14px;
+  }
+  h2.section-title{font-size:clamp(24px,3.4vw,30px);}
+  p.section-lede{color:var(--ink-soft);max-width:62ch;margin:10px 0 0;}
+
+  .route{margin-top:16px;position:relative;padding-inline-start:6px;}
+  .route::before{
+    content:"";
+    position:absolute;
+    inset-inline-start:15px;
+    top:6px;bottom:6px;
+    width:2px;
+    background:repeating-linear-gradient(to bottom, var(--line) 0 6px, transparent 6px 12px);
+  }
+  .stop{position:relative;padding-inline-start:44px;padding-bottom:18px;}
+  .stop:last-child{padding-bottom:0;}
+  .stop::before{
+    content:"";
+    position:absolute;
+    inset-inline-start:9px;top:4px;
+    width:14px;height:14px;
+    border-radius:50%;
+    background:var(--surface);
+    border:2px solid var(--accent-2);
+  }
+  .stop.critical::before{
+    border-color:var(--warn);
+    background:var(--warn);
+    box-shadow:0 0 0 5px color-mix(in srgb, var(--warn) 22%, transparent);
+  }
+  .stop-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .stop-head h3{font-size:19px;}
+  .stop-tag{
+    font-size:11.5px;color:var(--warn);
+    background:var(--warn-bg);
+    border:1px solid color-mix(in srgb, var(--warn) 35%, transparent);
+    padding:2px 8px;border-radius:999px;
+  }
+  .stop ul{margin:4px 0 0;padding:0;list-style:none;}
+  .stop li{margin:0;}
+  .check-item{
+    display:flex;
+    align-items:flex-start;
+    gap:9px;
+    cursor:pointer;
+    padding:2px 2px;
+    border-radius:6px;
+  }
+  .check-item:hover{background:color-mix(in srgb, var(--accent-2) 6%, transparent);}
+  .check-input{
+    position:absolute;
+    width:1px;height:1px;
+    opacity:0;
+    pointer-events:none;
+  }
+  .check-box{
+    flex:none;
+    width:17px;height:17px;
+    margin-top:1px;
+    border-radius:5px;
+    border:1.5px solid var(--ink-faint);
+    background:var(--surface);
+    display:flex;align-items:center;justify-content:center;
+    transition:background .15s, border-color .15s;
+  }
+  .check-icon{
+    width:11px;height:11px;
+    color:#fff;
+    opacity:0;
+    transition:opacity .1s;
+  }
+  .check-input:checked + .check-box{
+    background:var(--accent-2);
+    border-color:var(--accent-2);
+  }
+  .check-input:checked + .check-box .check-icon{opacity:1;}
+  .check-input:focus-visible + .check-box{
+    outline:2px solid var(--accent-2);
+    outline-offset:2px;
+  }
+  .check-text{
+    color:var(--ink-soft);
+    font-size:14.5px;
+    transition:color .15s;
+  }
+  .check-input:checked ~ .check-text{
+    color:var(--ink-faint);
+    text-decoration:line-through;
+  }
+
+  /* chapters */
+  section.chapter{padding:32px 0 4px;border-top:1px solid var(--line);scroll-margin-top:112px;}
+  .chapters-placeholder{
+    text-align:center;
+    color:var(--ink-faint);
+    font-size:15px;
+    padding:24px 16px;
+  }
+  section.chapter:first-of-type{border-top:none;}
+  .chapter-num{
+    font-family:"Frank Ruhl Libre",serif;
+    font-size:14px;color:var(--accent);
+    font-weight:600;
+  }
+  .chapter-intro{color:var(--ink-soft);max-width:none;margin:12px 0 26px;font-size:16px;}
+
+  .chapter ul.items{list-style:none;margin:0;padding:0;display:grid;gap:14px;}
+  .chapter ul.items > li{
+    position:relative;
+    padding-inline-start:26px;
+    font-size:15.5px;
+  }
+  .chapter ul.items > li::before{
+    content:"";
+    position:absolute;
+    inset-inline-start:0;top:9px;
+    width:8px;height:8px;
+    background:var(--accent-2);
+    -webkit-mask:polygon(100% 0,0 50%,100% 100%);
+    mask:polygon(100% 0,0 50%,100% 100%);
+  }
+  .chapter ul.items strong{color:var(--ink);font-weight:600;}
+
+  .callout{
+    margin:22px 0;
+    padding:18px 20px;
+    border-radius:10px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-inline-start:4px solid var(--accent-2);
+    box-shadow:var(--shadow);
+  }
+  .callout h4{
+    margin:0 0 10px;
+    font-family:"Heebo",sans-serif;
+    font-size:13px;
+    letter-spacing:.03em;
+    color:var(--accent-2);
+    font-weight:700;
+  }
+  .callout p{margin:0 0 10px;font-size:14.5px;color:var(--ink-soft);}
+  .callout p:last-child{margin-bottom:0;}
+  .callout ol{margin:0;padding-inline-start:20px;padding-inline-end:0;display:grid;gap:10px;}
+  .callout ol li{font-size:14.5px;color:var(--ink);}
+  .callout .disclaimer{
+    font-size:13px;
+    color:var(--warn);
+    background:var(--warn-bg);
+    border-radius:8px;
+    padding:10px 12px;
+    margin-bottom:14px;
+  }
+  .callout.warn{border-inline-start-color:var(--warn);}
+  .callout.warn h4{color:var(--warn);}
+
+  .spec{
+    margin-top:8px;
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:6px 14px;
+    font-size:14.5px;
+  }
+  .spec dt{color:var(--ink-faint);white-space:nowrap;}
+  .spec dd{margin:0;color:var(--ink);}
+
+  table.grants{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+    font-size:14px;
+    font-variant-numeric:tabular-nums;
+  }
+  table.grants caption{text-align:start;font-size:12.5px;color:var(--ink-faint);margin-bottom:8px;}
+  table.grants th, table.grants td{
+    text-align:start;
+    padding:9px 10px;
+    border-bottom:1px solid var(--line);
+  }
+  table.grants th{color:var(--ink-faint);font-weight:500;font-size:12.5px;}
+  table.grants td.num{font-weight:600;color:var(--ink);}
+  .table-wrap{overflow-x:auto;}
+
+  /* footer / signoff */
+  .signoff{
+    margin-top:16px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+    text-align:center;
+  }
+  .signoff p{
+    max-width:48ch;margin:0 auto;
+    color:var(--ink-soft);font-size:15.5px;
+  }
+  .signoff .name{
+    margin-top:18px;
+    font-family:"Frank Ruhl Libre",serif;
+    font-size:20px;
+    color:var(--ink);
+  }
+  .signoff .cohort{color:inherit;font-size:inherit;font-family:inherit;}
+  .li-pill{
+    display:inline-flex;align-items:center;gap:8px;
+    margin-top:18px;
+    padding:9px 18px;
+    border-radius:999px;
+    background:var(--accent);
+    color:var(--accent-ink);
+    font-size:14px;font-weight:600;
+    text-decoration:none;
+  }
+  .li-pill:hover{filter:brightness(1.06);}
+
+  .top-btn{
+    position:fixed;
+    inset-inline-end:20px;
+    bottom:20px;
+    width:42px;height:42px;
+    border-radius:50%;
+    background:var(--surface);
+    border:1px solid var(--line);
+    box-shadow:var(--shadow);
+    color:var(--ink-soft);
+    display:flex;align-items:center;justify-content:center;
+    text-decoration:none;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s;
+    z-index:55;
+  }
+  .top-btn.show{opacity:1;pointer-events:auto;}
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .top-btn{transition:none;}
+  }
+  html{scroll-behavior:smooth;}
+
+  @media (max-width:640px){
+    header.hero{padding:44px 0 20px;}
+    .intro-card{padding:22px 18px;}
+    section.chapter{padding:40px 0;}
+  }
+</style>
+</head>
+<body>
+
+
+<div class="progress"><i id="progressFill"></i></div>
+
+<div class="page" dir="rtl" lang="he" id="top">
+
+  <header class="hero">
+    <div class="kicker">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="12" cy="5" r="2.2" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M12 7.2V19" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M6 12H4a8 8 0 0 0 8 9 8 8 0 0 0 8-9h-2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M8 10.5 12 13l4-2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>מדריך לחובל המשתחרר</span>
+    </div>
+    <h1 class="title">משתחררים עם אפק</h1>
+
+    <div class="intro-card">
+      <p>לפניכם המדריך לחובל המשתחרר שבניתי — כמובן שזו לא המלצה מקצועית (אין לי רישיון לייעץ פיננסית), אלא הפקת לקחים מהניסיון האישי שלי בלבד, במטרה להקל עליכם. מקווה שיועיל למחזורים רבים, תנו בראש.</p>
+    </div>
+
+    <div class="signoff">
+      <p>מאחל לכם שחרור מוצלח. מוזמנים להתחבר איתי בלינקדאין ולפנות בכל שאלה. אפק שכטר, מחזור 140</p>
+      <a class="li-pill" href="https://www.linkedin.com/in/afek-shechter/" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.49 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.24 8.25h4.5V23H.24V8.25zM8.5 8.25h4.31v2.02h.06c.6-1.14 2.07-2.34 4.26-2.34 4.56 0 5.4 3 5.4 6.9V23h-4.5v-6.87c0-1.64-.03-3.75-2.29-3.75-2.29 0-2.64 1.79-2.64 3.63V23H8.5V8.25z"/></svg>
+        התחברות בלינקדאין
+      </a>
+    </div>
+
+  </header>
+
+  <div class="view-switch-bar">
+    <div class="view-switch" role="tablist" aria-label="תצוגת המדריך">
+      <button type="button" class="view-tab active" data-view="timeline" role="tab" aria-selected="true">צ'קליסט</button>
+      <button type="button" class="view-tab" data-view="chapters" role="tab" aria-selected="false">פרקים מלאים</button>
+    </div>
+    <button type="button" class="theme-toggle" id="themeToggle">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2.5 12H5M19 12h2.5M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg>
+      <span class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">החלפת תצוגה בהירה/כהה</span>
+    </button>
+  </div>
+
+  <nav class="toc" id="chapterNav" aria-label="ניווט בין פרקים" hidden>
+    <div class="toc-bar">
+      <div class="toc-inner" id="tocInner">
+        <a class="navlink" href="#ch1" data-target="ch1"><b>1</b> פנסיה וגמל</a>
+        <a class="navlink" href="#ch2" data-target="ch2"><b>2</b> ביטוח לאומי</a>
+        <a class="navlink" href="#ch3" data-target="ch3"><b>3</b> בריאות</a>
+        <a class="navlink" href="#ch4" data-target="ch4"><b>4</b> הטבות</a>
+        <a class="navlink" href="#ch5" data-target="ch5"><b>5</b> תעסוקה</a>
+        <a class="navlink" href="#ch6" data-target="ch6"><b>6</b> מיסים</a>
+        <a class="navlink" href="#ch7" data-target="ch7"><b>7</b> מילואים</a>
+      </div>
+      <span class="scroll-hint" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </span>
+    </div>
+  </nav>
+
+  <p id="viewPlaceholder" class="chapters-placeholder" hidden>בחרו למעלה איך תרצו לעיין במדריך — צ'קליסט או פרקים מלאים.</p>
+
+  <div id="viewTimeline" class="view">
+
+    <section id="timeline">
+      <h2 class="section-title">צ'קליסט</h2>
+
+      <div class="route">
+        <div class="stop">
+          <div class="stop-head"><h3>לפני השחרור</h3></div>
+          <ul>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s1-5"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">תיק רפואי, חיסונים, סדר בביטוחים</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s1-4"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">הטענת כרטיסי חבר למקסימום ומיצוי הטבות</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s1-7"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">בדיקת מסלול סלקום למשוחררים</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s1-1"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">עדכון קורות חיים ולינקדאין</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s1-6"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">בקשת מכתבי המלצה ממפקדים בכירים</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s1-3"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">הורדת 18 תלושי שכר אחרונים + טופס 106</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s1-2"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">תיאום שיבוץ מול קצינת המילואים</span></label></li>
+          </ul>
+        </div>
+
+        <div class="stop">
+          <div class="stop-head"><h3>יום השחרור ושבוע ראשון</h3></div>
+          <ul>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s2-2"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">הרשמה לביטוח לאומי ועדכון פרטים</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s2-3"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">תביעת דמי אבטלה + חתימה ראשונה, דרך האתר של לשכת התעסוקה</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s2-4"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">רישום מחדש לקופת חולים — באותו היום</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s2-1"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">קבלת תעודת שחרור</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s2-5"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">הפעלת הטבת התחבורה הציבורית</span></label></li>
+          </ul>
+        </div>
+
+        <div class="stop">
+          <div class="stop-head"><h3>חודש–חודשיים</h3></div>
+          <ul>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s3-6"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">בקשת משיכת מרכיב הפיצויים (טופס 161)</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s3-2"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">הרשמה כ"לא עובד" בביטוח לאומי באתר של שירות התעסוקה (לצורך קבלת דמי אבטלה)</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s3-1"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">כניסה לקרן להכוונת חיילים משוחררים — לבדוק כמה יש לכם בפיקדון</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s3-3"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">מימוש נקודות אפורות וכספ"ר — עד 30 יום</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s3-4"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">וידוא כניסת מענק שחרור מקבע</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s3-5"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">תיאום מס מול רשות המסים</span></label></li>
+          </ul>
+        </div>
+
+        <div class="stop">
+          <div class="stop-head"><h3>חמישה חודשים אחרי</h3></div>
+          <ul>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s4-1"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">הארכת הסדר ריסק זמני (עד שנתיים) או הפקדה עצמאית (עד 5 שנים)</span></label></li>
+          </ul>
+        </div>
+
+        <div class="stop">
+          <div class="stop-head"><h3>עד שנה אחרי</h3></div>
+          <ul>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s5-1"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">ניצול שנת ההטבה בקופת החולים והתחבורה הציבורית</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s5-2"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">הגשת בקשה להחזר מס — עצמאית או דרך רואה חשבון</span></label></li>
+          </ul>
+        </div>
+
+        <div class="stop">
+          <div class="stop-head"><h3>מתמשך</h3></div>
+          <ul>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s6-2"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">קרן השתלמות — 6 שנים לנזילות מפתיחה</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s6-5"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">ניצול כרטיסי חבר (כחול/צהוב) בהתאם לתאריך התפוגה עליהם</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s6-1"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">מלגת ממדים ללימודים — עד 5 שנים משחרור</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s6-3"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">הרשמה לעמותת מגדלור והצטרפות לקבוצות מקצועיות</span></label></li>
+            <li><label class="check-item"><input type="checkbox" class="check-input" data-check-id="s6-4"><span class="check-box"><svg class="check-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="check-text">לוודא קבלת כל נקודות הזיכוי במקום העבודה הבא</span></label></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <main id="viewChapters" class="view" hidden>
+
+    <p id="chaptersPlaceholder" class="chapters-placeholder">בחרו פרק מהתפריט למעלה כדי לפתוח אותו.</p>
+
+    <!-- CHAPTER 1 -->
+    <section class="chapter" id="ch1" hidden>
+      <span class="chapter-num">פרק 1</span>
+      <h2 class="section-title">פנסיה, גמל וקרן השתלמות</h2>
+      <p class="chapter-intro">כשמשתחררים מקבע, ההפקדות והביטוחים הפנסיוניים שהיו אוטומטיים בצבא נעצרים.</p>
+
+      <ul class="items">
+        <li><strong>הסדר ריסק זמני</strong> — מנגנון שנכנס <strong>אוטומטית</strong> לתוקף עד 5 חודשים מהשחרור, ומקזז מהצבירה הקיימת בקרן במקום מהפקדה שוטפת, תוך שמירה על הזכויות הביטוחיות (נכות ושארים). ניתן להאריך אותו עד <strong>שנתיים</strong> מהשחרור, אך זה דורש <strong>החלטה ידנית</strong> מצדכם.</li>
+        <li><strong>הפקדה עצמאית</strong> — הוראת קבע חודשית או הפקדות חד-פעמיות, ששומרת על מלוא התנאים כולל דמי הניהול המוזלים. אפשר להמשיך בה עד <strong>5 שנים</strong> מהשחרור.</li>
+        <li><strong>מרכיב הפיצויים</strong> — ניתן למשוך אותו פטור ממס, אך זה מקטין את הפנסיה העתידית. טופס 161 (סיום העסקה) נשלח אליכם כחודשיים אחרי השחרור; לצורך המשיכה פונים לגוף הפנסיה שלכם (במקרה שלי זה היה "הראל").</li>
+        <li><strong>קרן השתלמות</strong> — אפשר להשאיר את הכסף ולהמשיך לצבור תשואה, או להמתין למועד הנזילות המקורי (6 שנים מההפקדה הראשונה) ולמשוך פטור ממס רווחי הון.</li>
+        <li><strong>קופת גמל במעמד שכיר</strong> (בדרך כלל מנורה מבטחים) — ההפקדות נעצרות עם השחרור; אפשר להמשיך לחסוך שם דרך מקום העבודה הבא.</li>
+      </ul>
+
+      <div class="callout">
+        <h4>טיפים מהניסיון האישי — פנסיה והשתלמות</h4>
+        <div class="disclaimer">הטיפים הבאים נכתבו מתוך ניסיון אישי בלבד. אני לא איש מקצוע וזו אינה המלצה מקצועית לגבי איך לפעול — מומלץ להתייעץ עם גורם מוסמך.</div>
+        <ol>
+          <li>מבחינת קופת הגמל במנורה — לדעתי כדאי להעביר אותה לתוך קרן הפנסיה: דמי הניהול שם טובים יותר, וההעברה לא נחשבת אירוע מס, כך שהסכום עובר במלואו.</li>
+          <li>דמי הניהול בפנסיה בהראל עולים בשלב מסוים אחרי השחרור — אצלי זה קרה אחרי כחצי שנה בערך, אבל משיחות עם בוגרי קורס חובלים אחרים זה נראה משתנה מאדם לאדם. שימו לב: הם <em>מחויבים</em> להודיע לכם מראש לפני העלאה (כמה חודשים לפני, אבל אל תתפסו אותי במילה על הזמן המדויק) — כדאי לעקוב אחרי הודעות באזור האישי אצלם לפחות פעם בחודש.</li>
+          <li>אני עצמי השתמשתי בהסדר ריסק זמני — כלומר קיזוז מהצבירה במקום אחוז מההפקדה. להרחבה יש מידע מלא באתר "כל זכות". לא העמקתי בבדיקת היתרונות של הפקדה עצמאית, כי לא רציתי להתחייב להפרשה קבועה כשאין לי משכורת.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- CHAPTER 2 -->
+    <section class="chapter" id="ch2" hidden>
+      <span class="chapter-num">פרק 2</span>
+      <h2 class="section-title">ביטוח לאומי ודמי אבטלה</h2>
+      <p class="chapter-intro">מרגע השחרור אתם צריכים להסדיר את המעמד שלכם מול ביטוח לאומי בעצמכם — זה לא קורה אוטומטית.</p>
+
+      <ul class="items">
+        <li><strong>הרשמה כ"לא עובד"</strong> ותשלום דמי ביטוח מינימליים — לשים לב שלא מצטברים חובות וקנסות.</li>
+        <li><strong>תביעת דמי אבטלה</strong> — מוגשת דרך לשכת התעסוקה וביטוח לאומי, עם חתימה שבועית קבועה.</li>
+        <li><strong>מספר ימי זכאות לאבטלה</strong> — מספר הימים משתנה בהתאם לגיל. כדאי להתעדכן באתר ביטוח לאומי לגבי הזכאות הנוכחית.</li>
+      </ul>
+    </section>
+
+    <!-- CHAPTER 3 -->
+    <section class="chapter" id="ch3" hidden>
+      <span class="chapter-num">פרק 3</span>
+      <h2 class="section-title">ביטוח בריאות ורפואה</h2>
+      <p class="chapter-intro">קופת החולים שלכם "מתעוררת" ביום השחרור.</p>
+
+      <ul class="items">
+        <li><strong>ברירת המחדל</strong> — ביום השחרור עצמו יוצאים אוטומטית מ"הקפאה" וחוזרים לקופת החולים שהייתם בה לפני הגיוס. כדאי להירשם ולהתעדכן שם <strong>ביום השחרור עצמו</strong>. מקבלים שנה חינם על המסלול המוביל שלהם (למשל "מכבי שלי"); אחרי השנה צריך להתמקח על התנאים. חשוב לוודא מול הקופה שזה אכן קורה, ולהירשם לשירותים הדיגיטליים שלהם.</li>
+        <li><strong>מעבר לקופה אחרת</strong> (לא לזו שהייתם בה לפני הצבא) — נרשמים לכך באתר ביטוח לאומי כ-45 יום לפני מועד השינוי הרצוי.</li>
+        <li><strong>ביטוח נסיעות לחו"ל וביטוח מחלות קשות</strong> — שווה לבדוק את התנאים המיוחדים למשוחררים.</li>
+        <li><strong>תיק רפואי</strong> — להדפיס ולסיים הפניות אצל רופאים מומחים, כולל שיננית, עוד לפני השחרור, כשזה נוח וזמין.</li>
+      </ul>
+    </section>
+
+    <!-- CHAPTER 4 -->
+    <section class="chapter" id="ch4" hidden>
+      <span class="chapter-num">פרק 4</span>
+      <h2 class="section-title">הטבות</h2>
+      <p class="chapter-intro">כמה משימות מנהלתיות קטנות, שקל לפספס להן את חלון הזמן.</p>
+
+      <ul class="items">
+        <li><strong>כרטיסי חבר</strong> (צהוב / כחול) — לטעון את הכרטיס הכחול והצהוב במלואם לפני השחרור, ולמצות שוברים והטבות, כי הגישה לאתר נחסמת. הכרטיסים בתוקף עד התאריך הרשום עליהם.</li>
+        <li><strong>כרטיס אפור</strong> — ניתן לנצל עד 30 יום לאחר השחרור.</li>
+        <li><strong>שוברי חבר שהזמנתם בעבר</strong> — להוריד ולשמור אותם (צילום מסך או קובץ) לפני השחרור, כי הגישה לאתר חבר נחסמת עם השחרור ולא תוכלו לגשת אליהם שוב.</li>
+        <li><strong>סלקום</strong> — אפשר לעבור למסלול הייעודי למשוחררים (תבדקו עם סלקום מה התנאים הנוכחיים), או לנייד לחברה אחרת.</li>
+        <li><strong>תחבורה ציבורית</strong> — שנה חינם למשוחררי קבע: מזינים תעודה מזהה + תעודת שחרור באפליקציה (Moovit / HopOn / רב-קו). ההטבה נכנסת לתוקף רק מרגע אישור הפרופיל, וצריך לתקף בכל נסיעה — גם כשהיא חינם.</li>
+        <li><strong>תעודות שחרור</strong> — לדאוג לקבל את כל תעודות השחרור מכ"א של היחידה שלכם, ולשמור מהן גרסה מצולמת לשליחה לגורמים השונים שמנינו — ביטוח לאומי, קופת חולים, מס הכנסה ועוד.</li>
+      </ul>
+
+      <div class="callout">
+        <h4>מענק ופיקדון אישי</h4>
+        <dl class="spec">
+          <dt>מענק שחרור מקבע</dt><dd>נוסחה: 28% × שכר ברוטו לפנסיה בתלוש אחרון × (ימי שירות קבע / 360), מגיע תוך 60 יום מהשחרור</dd>
+          <dt>פיקדון אישי</dt><dd>ניתן למשוך החל מהיום ה-14 לשחרור</dd>
+          <dt>6 מטרות לפיקדון</dt><dd>לימודים אקדמיים, הכשרה מקצועית, נישואין, הקמת עסק, לימודי נהיגה, רכישת דירה/בית/קרקע</dd>
+        </dl>
+      </div>
+    </section>
+
+    <!-- CHAPTER 5 -->
+    <section class="chapter" id="ch5" hidden>
+      <span class="chapter-num">פרק 5</span>
+      <h2 class="section-title">תעסוקה וקריירה</h2>
+      <p class="chapter-intro">כדאי להתחיל להתכונן עוד לפני השחרור בפועל.</p>
+
+      <ul class="items">
+        <li><strong>קורות חיים ופרופיל לינקדאין</strong> מעודכנים — אם עוד אין לכם חשבון, זה הזמן לפתוח אחד ולהתחבר (connect) לחובלים אחרים ואנשים שאתם מכירים.</li>
+        <li><strong>מכתבי המלצה</strong> — כדאי לבקש ממפקדים בכירים עוד לפני השחרור, כשהם זוכרים אתכם היטב.</li>
+        <li><strong>תוכנית "עמית"</strong> — קורסים והכשרות בסבסוד, הרשמה דרך אפליקציה ייעודית (בתוקף עד סוף 2027, נכון לכתיבת שורות אלה).</li>
+        <li><strong>הרשמה לעמותת מגדלור</strong> — עמותת בוגרי קורס חובלים.</li>
+        <li><strong>הצטרפות לקבוצות מקצועיות</strong> לפי תחום עניין — קריירה כללית, נדל"ן, הון-סיכון, ועוד.</li>
+      </ul>
+
+      <div class="callout">
+        <h4>מלגת ממדים ללימודים</h4>
+        <dl class="spec">
+          <dt>תוקף</dt><dd>5 שנים מקבע, עבור קצינים</dd>
+          <dt>הטבה</dt><dd>מימון 100% משכר הלימוד האוניברסיטאי</dd>
+          <dt>תקופה</dt><dd>עד 3 שנים (4 שנים לתארים ארוכים, כמו הנדסה ורפואה)</dd>
+          <dt>מוסד</dt><dd>מוכר על ידי המל"ג, או מוסדות אמנות מאושרים</dd>
+        </dl>
+        <p>התנאים והזכאות עשויים להתעדכן מעת לעת לפי חוק המדינה — כדאי לבדוק את המצב העדכני.</p>
+      </div>
+    </section>
+
+    <!-- CHAPTER 6 -->
+    <section class="chapter" id="ch6" hidden>
+      <span class="chapter-num">פרק 6</span>
+      <h2 class="section-title">מיסים</h2>
+      <p class="chapter-intro">יש כאן כסף אמיתי שמחכה לכם — אבל רק אם תגישו את הטפסים הנכונים בזמן.</p>
+
+      <ul class="items">
+        <li><strong>טפסים מרכזיים</strong> — 106 (תלושי שכר), 135 (בקשת החזר מס), 161 (סיום העסקה), 867 (תיק השקעות).</li>
+        <li><strong>תיאום מס</strong> מול רשות המסים — מאוד חשוב, כי בפעם הראשונה לא תעבדו בחלק מהשנה. אפשר לבצע עצמאית או דרך רואה חשבון.</li>
+        <li><strong>זיכוי נקודות מס</strong> עבור תואר שני — אם רלוונטי לכם.</li>
+        <li><strong>חשוב</strong> — במקום העבודה הבא שלכם, לוודא שאתם מקבלים את <em>כל</em> נקודות הזיכוי שמגיעות לכם לפי הזכאות העדכנית בחוק, לא רק את אלה הקשורות לשחרור (למשל לפי מקום מגורים או תואר שני).</li>
+        <li><strong>החזר מס</strong> — אם ההכנסה שלכם בשארית השנה הקלנדרית נמוכה מהמשכורת הצבאית, ייתכן שמגיע לכם החזר.</li>
+      </ul>
+    </section>
+
+    <!-- CHAPTER 7 -->
+    <section class="chapter" id="ch7" hidden>
+      <span class="chapter-num">פרק 7</span>
+      <h2 class="section-title">מילואים</h2>
+
+      <ul class="items">
+        <li><strong>לפני שחרור</strong> — לשוחח עם קצינת המילואים כדי לוודא שיבוץ לפי המקום שתרצו לשרת בו (בה"ד / מטה / יחידת שטח).</li>
+        <li><strong>טופס 3010</strong> — מונפק לאחר ביצוע ימי מילואים כאישור רשמי לביצוע.</li>
+        <li>באתר המילואים אפשר לבחור בין שובר לרב-קו לבין <strong>החזר דלק</strong> — לדעתי מומלץ לקחת החזר דלק.</li>
+        <li><strong>מבנה התגמול</strong> — שכירים מקבלים דרך תלוש השכר; עצמאים ישירות מביטוח לאומי, לפי הערכת שכר שנתית. התשלום אמור להיכנס אוטומטית — כדאי לוודא שזה אכן קורה.</li>
+      </ul>
+
+      <div class="callout">
+        <h4>מענקים לפי ימי שירות מילואים פעיל בשנה</h4>
+        <div class="table-wrap">
+          <table class="grants">
+            <caption>הסכומים מתעדכנים מדי שנה לפי חוק המדינה — כדאי לבדוק את הסכום העדכני.</caption>
+            <thead>
+              <tr><th>ימי שמ"פ בשנה</th><th>מענק</th><th>שווה בנקודות זיכוי</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>10 – 14.5</td><td class="num">1,452 ₪</td><td>0.5</td></tr>
+              <tr><td>15 – 19.5</td><td class="num">2,904 ₪</td><td>1</td></tr>
+              <tr><td>20 – 36.5</td><td class="num">4,356 ₪</td><td>1.5</td></tr>
+              <tr><td>37 ומעלה</td><td class="num">5,808 ₪</td><td>2</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <ul class="items">
+        <li>שירות ממושך (בין 32 ל-60 יום, ומעבר ליום ה-60 בצו 8) זכאי ל<strong>תגמול מיוחד נוסף</strong>.</li>
+        <li><strong>הטבות נוספות</strong> למשרתי מילואים: דחיית תשלומי משכנתא והלוואות, פטור מעמלות בנק, מענקי טיפול נפשי ומעבר דירה, ייעוץ תעסוקתי, ועוד.</li>
+      </ul>
+    </section>
+
+  </main>
+
+</div>
+
+<a href="#top" class="top-btn" id="topBtn" aria-label="חזרה למעלה">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</a>
+
+<script>
+  (function(){
+    var root = document.documentElement;
+    var toggle = document.getElementById('themeToggle');
+    var stored = null;
+    try { stored = localStorage.getItem('mishtachrerim-theme'); } catch(e){}
+    if(stored === 'dark' || stored === 'light'){ root.setAttribute('data-theme', stored); }
+    function effectiveTheme(){
+      var attr = root.getAttribute('data-theme');
+      if(attr === 'dark' || attr === 'light') return attr;
+      var prefersDark = false;
+      try { prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches; } catch(e){}
+      return prefersDark ? 'dark' : 'light';
+    }
+    function syncToggle(){
+      var isDark = effectiveTheme() === 'dark';
+      toggle.classList.toggle('is-dark', isDark);
+      toggle.setAttribute('aria-label', isDark ? 'החלפה לתצוגה בהירה' : 'החלפה לתצוגה כהה');
+    }
+    syncToggle();
+    toggle.addEventListener('click', function(){
+      var next = effectiveTheme() === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('mishtachrerim-theme', next); } catch(e){}
+      syncToggle();
+    });
+
+    var viewTimeline = document.getElementById('viewTimeline');
+    var viewChapters = document.getElementById('viewChapters');
+    var chapterNav = document.getElementById('chapterNav');
+    var viewPlaceholder = document.getElementById('viewPlaceholder');
+    var viewTabs = Array.prototype.slice.call(document.querySelectorAll('.view-tab'));
+
+    var tocInner = document.getElementById('tocInner');
+    var scrollHint = document.querySelector('.scroll-hint');
+    function updateScrollHint(){
+      if(!tocInner || !scrollHint) return;
+      var atEnd = tocInner.scrollWidth - tocInner.clientWidth - Math.abs(tocInner.scrollLeft) <= 2;
+      scrollHint.style.display = atEnd ? 'none' : 'flex';
+    }
+    if(tocInner && scrollHint){
+      tocInner.addEventListener('scroll', updateScrollHint, {passive:true});
+      window.addEventListener('resize', updateScrollHint);
+    }
+
+    function setView(name){
+      var showChapters = name === 'chapters';
+      viewPlaceholder.hidden = true;
+      viewChapters.hidden = !showChapters;
+      viewTimeline.hidden = showChapters;
+      chapterNav.hidden = !showChapters;
+      viewTabs.forEach(function(t){
+        var active = t.dataset.view === name;
+        t.classList.toggle('active', active);
+        t.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      if(showChapters){
+        requestAnimationFrame(updateScrollHint);
+      }
+    }
+    viewTabs.forEach(function(t){
+      t.addEventListener('click', function(){ setView(t.dataset.view); window.scrollTo({top:0, behavior:'auto'}); });
+    });
+
+    var chapters = Array.prototype.slice.call(document.querySelectorAll('#viewChapters .chapter'));
+    var chapterLinks = Array.prototype.slice.call(document.querySelectorAll('#chapterNav .navlink'));
+    var chaptersPlaceholder = document.getElementById('chaptersPlaceholder');
+    function showChapter(id){
+      chaptersPlaceholder.hidden = true;
+      chapters.forEach(function(sec){ sec.hidden = sec.id !== id; });
+      chapterLinks.forEach(function(l){ l.classList.toggle('active', l.dataset.target === id); });
+    }
+    chapterLinks.forEach(function(link){
+      link.addEventListener('click', function(e){
+        e.preventDefault();
+        setView('chapters');
+        showChapter(link.dataset.target);
+        window.scrollTo({top:0, behavior:'auto'});
+      });
+    });
+
+
+    var CHECK_KEY = 'mishtachrerim-checklist';
+    var savedChecks = {};
+    try { savedChecks = JSON.parse(localStorage.getItem(CHECK_KEY) || '{}'); } catch(e){ savedChecks = {}; }
+    document.querySelectorAll('.check-input').forEach(function(input){
+      var id = input.dataset.checkId;
+      if(savedChecks[id]) input.checked = true;
+      input.addEventListener('change', function(){
+        if(input.checked){ savedChecks[id] = true; } else { delete savedChecks[id]; }
+        try { localStorage.setItem(CHECK_KEY, JSON.stringify(savedChecks)); } catch(e){}
+      });
+    });
+
+    var fill = document.getElementById('progressFill');
+    var topBtn = document.getElementById('topBtn');
+    function onScroll(){
+      var h = document.documentElement;
+      var scrolled = h.scrollTop;
+      var max = h.scrollHeight - h.clientHeight;
+      var pct = max > 0 ? (scrolled / max) * 100 : 0;
+      fill.style.width = pct + '%';
+      if(scrolled > 500){ topBtn.classList.add('show'); } else { topBtn.classList.remove('show'); }
+    }
+    document.addEventListener('scroll', onScroll, {passive:true});
+    onScroll();
+  })();
+</script>
+
+</body>
+</html>
