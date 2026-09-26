@@ -138,10 +138,7 @@
     background:color-mix(in srgb, var(--bg) 88%, transparent);
     backdrop-filter:blur(8px);
     border-bottom:1px solid var(--line);
-    transition:transform .25s ease;
   }
-  body.bar-hidden .view-switch-bar{transform:translateY(-100%);}
-  body.bar-hidden nav.toc{transform:translateY(calc(-100% - 54px));}
   .view-switch-bar{
     max-width:920px;margin:0 auto;padding:10px 20px;
     display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -169,7 +166,6 @@
   /* nav */
   nav.toc{
     position:sticky;top:54px;z-index:50;
-    transition:transform .25s ease;
     background:color-mix(in srgb, var(--bg) 88%, transparent);
     backdrop-filter:blur(8px);
     border-bottom:1px solid var(--line);
@@ -1016,13 +1012,9 @@
 
     var fill = document.getElementById('progressFill');
     var topBtn = document.getElementById('topBtn');
-    var lastY = 0;
     function onScroll(){
       var h = document.documentElement;
       var scrolled = h.scrollTop;
-      if(scrolled > lastY + 4 && scrolled > 120){ document.body.classList.add('bar-hidden'); }
-      else if(scrolled < lastY - 4 || scrolled <= 120){ document.body.classList.remove('bar-hidden'); }
-      lastY = scrolled;
       var max = h.scrollHeight - h.clientHeight;
       var pct = max > 0 ? (scrolled / max) * 100 : 0;
       fill.style.width = pct + '%';
